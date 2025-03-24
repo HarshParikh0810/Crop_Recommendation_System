@@ -1,0 +1,2 @@
+# Crop_Recommendation_System
+ # Crop Recommendation System  An AI-powered agricultural tool that recommends optimal crops based on soil parameters and location-specific climate data across India. The system combines soil analysis (N, P, K, pH) with real-time weather data from Visual Crossing API to provide personalized crop suggestions through a user-friendly web interface. Built with FastAPI backend and interactive JavaScript frontend, it leverages machine learning to help farmers make data-driven planting decisions tailored to their specific region and growing season.
