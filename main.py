@@ -7,25 +7,38 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import calendar
 from datetime import datetime, timedelta
+import os
+from dotenv import load_dotenv
 
-app = FastAPI()
+# Load environment variables
+load_dotenv()
 
-# CORS Configuration
+app = FastAPI(
+    title="Crop Prediction API",
+    description="AI-powered crop recommendation system",
+    version="1.0.0"
+)
+
+# CORS Configuration with dynamic origins
+allowed_origins = os.getenv('ALLOWED_ORIGINS', 'http://localhost:3000').split(',')
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:5500"],  # Adjust for deployment
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Secure API key handling
+VISUAL_CROSSING_API_KEY = os.getenv('VISUAL_CROSSING_API_KEY')
+
+
 
 # Load ML model and preprocessing tools
 model = joblib.load("crop_prediction_model_final.pkl")
 label_encoder = joblib.load("label_encoder_final.pkl")
 scaler = joblib.load("scaler_final.pkl")
 
-# Replace with your Visual Crossing API key
-VISUAL_CROSSING_API_KEY = "USE_YOUR_API_KEY"
 
 class CropInput(BaseModel):
     nitrogen: int
