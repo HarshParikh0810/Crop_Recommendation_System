@@ -1,5 +1,5 @@
 // Constants and configuration
-const API_BASE_URL = 'http://localhost:8000'; // Update this to match your FastAPI server
+const API_BASE_URL = 'https://crop-recommendation-system-2-ob6l.onrender.com'; // Your deployed FastAPI URL
 const MONTHS = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
