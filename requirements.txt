@@ -17,4 +17,8 @@ python-dotenv==1.0.0
 python-multipart==0.0.9
 
 # Deployment
+
 gunicorn==21.2.0
+
+gunicorn==21.2.0
+

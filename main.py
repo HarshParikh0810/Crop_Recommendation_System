@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+
 app = FastAPI(
     title="Crop Prediction API",
     description="AI-powered crop recommendation system",
