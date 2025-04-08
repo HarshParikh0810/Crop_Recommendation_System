@@ -1,0 +1,726 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Recommendation System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #2E7D32;
+            --light-color: #E8F5E9;
+            --dark-color: #1B5E20;
+            --gray-color: #f5f5f5;
+            --text-color: #333;
+            --border-radius: 8px;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #f9f9f9;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .input-section, .result-section {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        #loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .climate-card {
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .climate-card h3 {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .climate-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .climate-item {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .climate-item i {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .result-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .crop-result {
+            margin: 20px 0;
+        }
+
+        .crop-result i {
+            color: var(--primary-color);
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .crop-result h3 {
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+        }
+
+        .climate-summary {
+            background-color: var(--gray-color);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            text-align: left;
+        }
+
+        .climate-summary p {
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .climate-summary ul {
+            list-style-type: none;
+        }
+
+        .climate-summary li {
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .error {
+            color: #d32f2f;
+            background-color: #ffebee;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .input-section, .result-section {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Crop Recommendation System</h1>
+            <p>Find the optimal crop for your soil and climate conditions</p>
+        </header>
+
+        <div class="main-content">
+            <div class="input-section">
+                <div class="card">
+                    <h2>Input Parameters</h2>
+                    
+                    <div class="form-group">
+                        <label for="state">State</label>
+                        <select id="state" required>
+                            <option value="">Select State</option>
+                            <option value="Andhra Pradesh">Andhra Pradesh</option>
+                            <option value="Assam">Assam</option>
+                            <option value="Bihar">Bihar</option>
+                            <option value="Chhattisgarh">Chhattisgarh</option>
+                            <option value="Gujarat">Gujarat</option>
+                            <option value="Haryana">Haryana</option>
+                            <option value="Karnataka">Karnataka</option>
+                            <option value="Kerala">Kerala</option>
+                            <option value="Madhya Pradesh">Madhya Pradesh</option>
+                            <option value="Maharashtra">Maharashtra</option>
+                            <option value="Odisha">Odisha</option>
+                            <option value="Punjab">Punjab</option>
+                            <option value="Rajasthan">Rajasthan</option>
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Telangana">Telangana</option>
+                            <option value="Uttar Pradesh">Uttar Pradesh</option>
+                            <option value="West Bengal">West Bengal</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="district">District</label>
+                        <select id="district" required>
+                            <option value="">Select District</option>
+                            <!-- Will be populated based on state -->
+                            <option value="Sample District">Sample District</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="month">Month for Planting</label>
+                        <select id="month" required>
+                            <!-- Populated via JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <div id="climate-info">
+                        <!-- Climate information will be displayed here -->
+                        <p>Climate data will appear here after selecting location and month.</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>Soil Parameters</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nitrogen">Nitrogen (kg/ha)</label>
+                            <input type="number" id="nitrogen" min="0" max="300" placeholder="0-300" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phosphorus">Phosphorus (kg/ha)</label>
+                            <input type="number" id="phosphorus" min="0" max="300" placeholder="0-300" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="potassium">Potassium (kg/ha)</label>
+                            <input type="number" id="potassium" min="0" max="300" placeholder="0-300" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ph">pH Value</label>
+                            <input type="number" id="ph" min="0" max="14" step="0.1" placeholder="0.0-14.0" required>
+                        </div>
+                    </div>
+                    
+                    <button id="predict-btn">Predict Recommended Crop</button>
+                </div>
+            </div>
+            
+            <div class="result-section">
+                <div class="card">
+                    <h2>Prediction Results</h2>
+                    
+                    <div id="loading">
+                        <div class="spinner"></div>
+                        <p>Analyzing your inputs...</p>
+                    </div>
+                    
+                    <div id="result">
+                        <!-- Results will be displayed here -->
+                        <p>Enter all parameters and click "Predict Recommended Crop" to see results.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Recommendation System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #2E7D32;
+            --light-color: #E8F5E9;
+            --dark-color: #1B5E20;
+            --gray-color: #f5f5f5;
+            --text-color: #333;
+            --border-radius: 8px;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #f9f9f9;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .input-section, .result-section {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        #loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .climate-card {
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .climate-card h3 {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .climate-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .climate-item {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .climate-item i {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .result-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .crop-result {
+            margin: 20px 0;
+        }
+
+        .crop-result i {
+            color: var(--primary-color);
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .crop-result h3 {
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+        }
+
+        .climate-summary {
+            background-color: var(--gray-color);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            text-align: left;
+        }
+
+        .climate-summary p {
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .climate-summary ul {
+            list-style-type: none;
+        }
+
+        .climate-summary li {
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .error {
+            color: #d32f2f;
+            background-color: #ffebee;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .input-section, .result-section {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Crop Recommendation System</h1>
+            <p>Find the optimal crop for your soil and climate conditions</p>
+        </header>
+
+        <div class="main-content">
+            <div class="input-section">
+                <div class="card">
+                    <h2>Input Parameters</h2>
+                    
+                    <div class="form-group">
+                        <label for="state">State</label>
+                        <select id="state" required>
+                            <option value="">Select State</option>
+                            <option value="Andhra Pradesh">Andhra Pradesh</option>
+                            <option value="Assam">Assam</option>
+                            <option value="Bihar">Bihar</option>
+                            <option value="Chhattisgarh">Chhattisgarh</option>
+                            <option value="Gujarat">Gujarat</option>
+                            <option value="Haryana">Haryana</option>
+                            <option value="Karnataka">Karnataka</option>
+                            <option value="Kerala">Kerala</option>
+                            <option value="Madhya Pradesh">Madhya Pradesh</option>
+                            <option value="Maharashtra">Maharashtra</option>
+                            <option value="Odisha">Odisha</option>
+                            <option value="Punjab">Punjab</option>
+                            <option value="Rajasthan">Rajasthan</option>
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Telangana">Telangana</option>
+                            <option value="Uttar Pradesh">Uttar Pradesh</option>
+                            <option value="West Bengal">West Bengal</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="district">District</label>
+                        <select id="district" required>
+                            <option value="">Select District</option>
+                            <!-- Will be populated based on state -->
+                            <option value="Sample District">Sample District</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="month">Month for Planting</label>
+                        <select id="month" required>
+                            <!-- Populated via JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <div id="climate-info">
+                        <!-- Climate information will be displayed here -->
+                        <p>Climate data will appear here after selecting location and month.</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>Soil Parameters</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nitrogen">Nitrogen (kg/ha)</label>
+                            <input type="number" id="nitrogen" min="0" max="300" placeholder="0-300" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phosphorus">Phosphorus (kg/ha)</label>
+                            <input type="number" id="phosphorus" min="0" max="300" placeholder="0-300" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="potassium">Potassium (kg/ha)</label>
+                            <input type="number" id="potassium" min="0" max="300" placeholder="0-300" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ph">pH Value</label>
+                            <input type="number" id="ph" min="0" max="14" step="0.1" placeholder="0.0-14.0" required>
+                        </div>
+                    </div>
+                    
+                    <button id="predict-btn">Predict Recommended Crop</button>
+                </div>
+            </div>
+            
+            <div class="result-section">
+                <div class="card">
+                    <h2>Prediction Results</h2>
+                    
+                    <div id="loading">
+                        <div class="spinner"></div>
+                        <p>Analyzing your inputs...</p>
+                    </div>
+                    
+                    <div id="result">
+                        <!-- Results will be displayed here -->
+                        <p>Enter all parameters and click "Predict Recommended Crop" to see results.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
